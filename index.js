@@ -1,4 +1,5 @@
 const inquirer = require(`inquirer`)
+const axios = require(`axios`)
 const fs = require(`fs`);
 const { readMeTemplate } = require(`./writeReadMe.js`)
 
@@ -15,20 +16,36 @@ inquirer
             message: `Please provide a short description of your app`,
             name: `description`
         },
-        {
-            type: `input`,
-            message: `Please provide a short description of your app`,
-            name: `description`
-        },
-
+        // {
+        //     type: `input`,
+        //     message: `Please provide a short description of your app`,
+        //     name: `description`
+        // },
     ]).then(function(data){
-        console.log(data)
+        // console.log(data)
+        // console.log(data.githubUsername)
+        const githubUsername = data.githubUsername
+        axios
+            .get(`https://api.github.com/users/${githubUsername}`).then(function(githubResponse){
+                const githubData = githubResponse.data
+                console.log(githubData.email)
+            })
+        //     .get(GET /users/:username)
+        //     .then(function(githubResponse){
+        //         console.log(githubResponse)
+        //         console.log(githubResponse.data)
+        //     })
 
 
+        // const filledReadMe = readMeTemplate(parameters)
 
-        const filledReadMe = readMeTemplate(parameters)
-
-        fs.writeFile("README.md", filledReadMe, function)
+        // fs.writeFile(`README_${project}.md`, filledReadMe, function(error, data){
+        //     if (error){
+        //         console.log(`Encountered an error: ${error}`)
+        //     } else {
+        //         console.log(`Successfully wrote a custom README.md`)
+        //     }
+        // })
     })
 
 
