@@ -7,26 +7,37 @@ const {
 require("dotenv").config();
 const authToken = process.env.API_KEY;
 
+function spaceDeleter(inputStr) {
+    let inputArr = inputStr.split("");
+    for (let i = 0; i < inputArr.length; i++) {
+        if (inputArr[i] == " ") {
+            inputArr[i] = `%20`
+            i++
+        }
+    }
+    return inputArr.join("")
+}
+
 inquirer
     .prompt([{
             // This should be enough to get the email and profile image from the github api?
             type: `input`,
-            message: `What is your GitHub username?`,
+            message: `What is your GitHub username? (required)`,
             name: `githubUsername`
         },
         {
             type: `input`,
-            message: `What is your email address?`,
+            message: `What is your email address? (required)`,
             name: `email`
         },
         {
             type: `input`,
-            message: `What is your app called?`,
+            message: `What is your app called? (required)`,
             name: `title`
         },
         {
             type: `input`,
-            message: `Please provide a short description of your app`,
+            message: `Please provide a short description of your app (required)`,
             name: `description`
         },
         {
@@ -36,47 +47,59 @@ inquirer
         },
         {
             type: `input`,
-            message: `Please provide a short set of instructions on how to use your app.`,
+            message: `Please provide a short set of instructions on how to use your app (required).`,
             name: `usage`
         },
         {
             type: `checkbox`,
-            message: `Please select all applicable open-source licenses.`,
+            message: `Please select all applicable open-source licenses (required).`,
             name: `license`,
             choices: [`MIT`, `BSD`, `Apache`]
         },
         {
             type: `input`,
-            message: `Who else contributed towards the creation of this app?`,
+            message: `Who else contributed towards the creation of this app? If nobody did, please leave this blank.`,
             name: `contributors`
         },
         {
             type: `input`,
-            message: `What sort of test driven development has been incorporated in your app?`,
+            message: `What sort of test driven development has been incorporated in your app? If none, please leave this blank.`,
             name: `tests`
         },
         {
             type: `input`,
-            message: `What questions do you have?`,
+            message: `What questions do you have? If none, please leave this blank.`,
             name: `questions`
         },
         {
             type: `input`,
-            message: `Anything else you would like a user to know?`,
+            message: `Anything else you would like a user to know? If none please leave this blank.`,
             name: `misc`
         },
+        {
+            type: `list`,
+            message: `Pick your favorite color out of the following choices (required):`,
+            name: `color`,
+            choices: [`brightgreen`, `green`, `yellowgreen`, `yellow`, `orange`, `red`, `blue`, `lightgrey`]
+        },
     ]).then(function (data) {
+        // required inputs
         const githubUsername = data.githubUsername
         const userEmail = data.email;
         const userTitle = data.title;
         const userDescription = data.description;
-        const userInstall = data.installation;
         const userUsage = data.usage;
         const userLicense = data.license;
-        const userContrib = data.contributors;
-        const userTests = data.tests;
-        const userQuestions = data.questions;
-        const userMisc = data.misc;
+        const userColor = data.color;
+
+        // optional inputs 
+        let userInstall = data.installation;
+        let userContrib = data.contributors;
+        let userTests = data.tests;
+        let userQuestions = data.questions;
+        let userMisc = data.misc;
+
+        const userTitleBadge = spaceDeleter(userTitle)
 
         if (githubUsername == "") {
             throw Error("Please enter a username.")
@@ -90,7 +113,10 @@ inquirer
             throw Error("Please enter instructions on how to use your app.")
         } else if (userLicense == "") {
             throw Error("Please select at least one license.")
+        } else if (userColor == "") {
+            throw Error("Please select a color.")
         }
+        
 
         if (userInstall == "") {
             userInstall = "No special installation preparations are necessary. Enjoy right out of the box!"
@@ -121,7 +147,7 @@ inquirer
                 // console.log(profilePicURL)
                 return profilePicURL;
             }).then(function (profilePicURL) {
-                const filledReadMe = readMeTemplate(githubUsername, userEmail, userTitle, userDescription, userInstall, userUsage, userLicense, userContrib, userTests, userQuestions, userMisc, profilePicURL)
+                const filledReadMe = readMeTemplate(githubUsername, userEmail, userTitle, userDescription, userInstall, userUsage, userLicense, userContrib, userTests, userQuestions, userMisc, profilePicURL, userTitleBadge, userColor)
                 fs.writeFile(`README_${userTitle}.md`, filledReadMe, function (error) {
                     if (error) {
                         console.log(error)
