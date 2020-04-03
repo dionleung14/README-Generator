@@ -59,52 +59,11 @@ If you have any questions, please feel free to contact me at ${email}.
 Here is a photo of my lovely face! ![headshot](${photoURL})
 
 ---
-© 2020 ${username}. All Rights Reserved.
+© 2020 (https://github.com/${username}). All Rights Reserved.
 
 `
 }
 
-
-
 module.exports = {
     readMeTemplate
 }
-
-/*
-function htmlTemplate(userName, userLocation, userBio, userLinkedin, userGithub){
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>All about ${userName}</title>
-        <style>
-            body {
-                background-color: aquamarine;
-                font-family: Georgia, 'Times New Roman', Times, serif;
-            }
-            section {
-                background-color: gray;
-                padding: 5%;
-                margin: 5%;
-                border: 1px black solid;
-            }
-        </style>
-    </head>
-    <body>
-        <section>
-            <h1>Hi! My name is ${userName}</h1>
-            <h3>I am currently located in ${userLocation}</h3>
-            <h3>${userBio}</h3>
-            <h3>My LinkedIn is <a href="https://www.linkedin.com/in/${userLinkedin}" target="_blank">here</a></h3>
-            <h3>Find my GitHub profile <a href="https://github.com/${userGithub}" target="_blank">here</a></h3>
-        </section>
-    </body>
-    </html>`
-}
-
-module.exports = {
-    htmlTemplate
-}
-
-*/

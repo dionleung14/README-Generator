@@ -1,13 +1,14 @@
 const inquirer = require(`inquirer`)
 const axios = require(`axios`)
 const fs = require(`fs`);
-const { readMeTemplate } = require(`./writeReadMe.js`)
+const {
+    readMeTemplate
+} = require(`./writeReadMe.js`)
 require("dotenv").config();
 const authToken = process.env.API_KEY;
 
 inquirer
-    .prompt([
-        {
+    .prompt([{
             // This should be enough to get the email and profile image from the github api?
             type: `input`,
             message: `What is your GitHub username?`,
@@ -64,7 +65,7 @@ inquirer
             message: `Anything else you would like a user to know?`,
             name: `misc`
         },
-    ]).then(function(data){
+    ]).then(function (data) {
         const githubUsername = data.githubUsername
         const userEmail = data.email;
         const userTitle = data.title;
@@ -77,134 +78,75 @@ inquirer
         const userQuestions = data.questions;
         const userMisc = data.misc;
 
+        if (githubUsername == "") {
+            throw Error("Please enter a username.")
+        } else if (userEmail == "") {
+            throw Error("Please enter an email address.")
+        } else if (userTitle == "") {
+            throw Error("Please enter a title for your app.")
+        } else if (userDescription == "") {
+            throw Error("Please enter a description of your app.")
+        } else if (userUsage == "") {
+            throw Error("Please enter instructions on how to use your app.")
+        } else if (userLicense == "") {
+            throw Error("Please select at least one license.")
+        }
+
+        if (userInstall == "") {
+            userInstall = "No special installation preparations are necessary. Enjoy right out of the box!"
+        }
+
+        if (userContrib == "") {
+            userContrib = "my trustworthy machine. Could not have done this without it."
+        }
+
+        if (userTests == "") {
+            userTests = "No tests were done, it's all super high risk."
+        }
+
+        if (userQuestions == "") {
+            userQuestions = "Please, hold all questions till the end."
+        }
+
+        if (userMisc == "") {
+            userMisc = "No other information is necessary."
+        }
+
         axios
             // .get(`-H "Authorization: token " https://api.github.com/users/${githubUsername}`).then(function(githubResponse){
-            .get(`https://api.github.com/users/${githubUsername}`).then(function(githubResponse){
+            .get(`https://api.github.com/users/${githubUsername}`).then(function (githubResponse) {
                 const githubData = githubResponse.data
                 // console.log(githubData)
                 const profilePicURL = githubData.avatar_url
                 // console.log(profilePicURL)
                 return profilePicURL;
-            }).then(function(profilePicURL){
+            }).then(function (profilePicURL) {
                 const filledReadMe = readMeTemplate(githubUsername, userEmail, userTitle, userDescription, userInstall, userUsage, userLicense, userContrib, userTests, userQuestions, userMisc, profilePicURL)
-                fs.writeFile(`README_${userTitle}.md`, filledReadMe, function (error){
+                fs.writeFile(`README_${userTitle}.md`, filledReadMe, function (error) {
                     if (error) {
                         console.log(error)
                     } else {
-                        console.log("Successfully wrote a custom README.md")
+                        console.log("Successfully wrote a custom README.md. Rename the file if necessary.")
                     }
                 })
             })
 
-
-
-
-        //     .get(GET /users/:username)
-        //     .then(function(githubResponse){
-        //         console.log(githubResponse)
-        //         console.log(githubResponse.data)
-        //     })
-
-
-        // const filledReadMe = readMeTemplate(parameters)
-
-        // fs.writeFile(`README_${project}.md`, filledReadMe, function(error, data){
-        //     if (error){
-        //         console.log(`Encountered an error: ${error}`)
-        //     } else {
-        //         console.log(`Successfully wrote a custom README.md`)
-        //     }
-        // })
     })
+//     .get(GET /users/:username)
+//     .then(function(githubResponse){
+//         console.log(githubResponse)
+//         console.log(githubResponse.data)
+//     })
 
-
-/* copied from activity 40
-const inquirer = require(`inquirer`);
-const fs = require(`fs`);
-const promises = require(`promises`);
-
-inquirer
-    .prompt([{
-            type: `input`,
-            message: `What is your name?`,
-            name: `name`,
-        },
-        {
-            type: `input`,
-            message: `What is your location?`,
-            name: `location`,
-        },
-        {
-            type: `input`,
-            message: `Describe yourself in 20 words or less`,
-            name: `bio`,
-        },
-        {
-            type: `input`,
-            message: `What is your LinkedIn username?`,
-            name: `linkedin`,
-        },
-        {
-            type: `input`,
-            message: `What is your GitHub username?`,
-            name: `github`,
-        }
-    ]).then(function (response) {
-        const userName = response.name
-        const userLocation = response.location
-        const userBio = response.bio
-        const userLinkedin = response.linkedin
-        const userGithub = response.github
-        const htmlString = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All about ${userName}</title>
-    <style>
-        body {
-            background-color: aquamarine;
-            font-family: Georgia, 'Times New Roman', Times, serif;
-        }
-        section {
-            background-color: gray;
-            padding: 5%;
-            margin: 5%;
-            border: 1px black solid;
-        }
-    </style>
-</head>
-<body>
-    <section>
-        <h1>Hi! My name is ${userName}</h1>
-        <h3>I am currently located in ${userLocation}</h3>
-        <h3>${userBio}</h3>
-        <h3>My LinkedIn is <a href="https://www.linkedin.com/in/${userLinkedin}" target="_blank">here</a></h3>
-        <h3>Find my GitHub profile <a href="https://github.com/${userGithub}" target="_blank">here</a></h3>
-    </section>
-</body>
-</html>`
-
-        fs.writeFile(userName + `_index.html`, htmlString, function (error) {
-            if (error) {
-                console.log(error)
-            } else {
-                console.log(`Success`)
-            }
-        })
-    })
-
-    // Ask for GitHub username
-    // Use the username to look at their repos
-    // Ask which repo the user wants to generate a readme for
-    // Ask readme questions
-        // Short description of the project
-        // A table of contents (for the readme)
-        // Anything a user of the repo needs to install?
-        // How to use the app
-        // Any licenses?
-        // Who contributed to the app?
-        // Tests?
-        // Direct questions to the github user
-
-        */
+// Ask for GitHub username
+// Use the username to look at their repos
+// Ask which repo the user wants to generate a readme for
+// Ask readme questions
+// Short description of the project
+// A table of contents (for the readme)
+// Anything a user of the repo needs to install?
+// How to use the app
+// Any licenses?
+// Who contributed to the app?
+// Tests?
+// Direct questions to the github user
